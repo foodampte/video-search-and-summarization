@@ -233,6 +233,7 @@ llms:
     model_name: ${VLM_NAME}
     base_url: ${RTVI_VLM_BASE_URL}/v1
     temperature: 0.0
+    max_tokens: 4096
     max_frames: 30
     max_fps: 2  # for CR1, max fps is 2
     min_pixels: 3136
