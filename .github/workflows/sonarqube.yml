@@ -126,9 +126,19 @@ jobs:
           docker image prune -a -f 2>/dev/null || true
           docker builder prune -a -f 2>/dev/null || true
 
+      # The self-hosted runner's $HOME (where ~/.sonar lives) and /tmp can be
+      # too small. Plugin downloads go to $SONAR_USER_HOME/_tmp; the JVM also
+      # needs a tmpdir with adequate space. Redirect both to runner.temp, which
+      # is a clean per-job directory.
+      - name: Prepare SonarScanner directories
+        run: |
+          mkdir -p "${{ runner.temp }}/sonar-home"
+          mkdir -p "${{ runner.temp }}/sonar-tmp"
+
       - name: Run SonarQube scanner
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          _JAVA_OPTIONS: "-Djava.io.tmpdir=/tmp"
+          SONAR_USER_HOME: "${{ runner.temp }}/sonar-home"
+          _JAVA_OPTIONS: "-Djava.io.tmpdir=${{ runner.temp }}/sonar-tmp -Xmx2G"
