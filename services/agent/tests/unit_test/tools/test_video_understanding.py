@@ -133,19 +133,47 @@ class TestShouldUseVideoBase64:
             vlm_mode="local_shared",
         )
 
-    def test_enable_audio_skips_base64_for_remote_vlm(self):
+    def test_enable_audio_omni_remote_skips_jpeg(self):
+        # Omni + remote uses the data-URI path (handled by _should_use_video_file_base64),
+        # so this fn returns False so the file-base64 path takes over.
         assert not _should_use_video_base64(
             use_base64=False,
             vlm_mode="remote",
             enable_audio=True,
+            model_name="nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4",
         )
 
+    def test_enable_audio_omni_local_skips_jpeg(self):
+        # Omni + local: VST URL is reachable, send raw video_url with audio track.
+        assert not _should_use_video_base64(
+            use_base64=False,
+            vlm_mode="local",
+            enable_audio=True,
+            model_name="nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4",
+        )
+
+    def test_enable_audio_non_omni_remote_falls_back_to_jpeg(self, caplog):
+        # Non-Omni + remote can't honor audio AND can't reach the internal VST URL.
+        # Fall back to JPEG frame sampling (degraded but functional) and warn.
+        with caplog.at_level("WARNING"):
+            assert _should_use_video_base64(
+                use_base64=False,
+                vlm_mode="remote",
+                enable_audio=True,
+                model_name="nvidia/cosmos-reason2-8b",
+            )
+        assert "non-Omni remote VLM" in caplog.text
+        assert "Falling back to JPEG" in caplog.text
+
     def test_enable_audio_warns_when_use_base64_explicit(self, caplog):
+        # Local VLM (URL reachable), Omni model: enable_audio takes precedence over
+        # use_base64 because audio requires the full MP4.
         with caplog.at_level("WARNING"):
             assert not _should_use_video_base64(
                 use_base64=True,
                 vlm_mode="local",
                 enable_audio=True,
+                model_name="nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4",
             )
         assert "use_base64=True is ignored" in caplog.text
 

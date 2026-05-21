@@ -105,13 +105,31 @@ def _should_use_video_base64(
     use_base64: bool,
     vlm_mode: str | None,
     enable_audio: bool = False,
+    model_name: str = "",
 ) -> bool:
     """Return whether the video payload should be downloaded locally and sent as base64 frames.
 
-      Audio-capable VLMs (e.g. Nemotron Omni) need the full MP4 via ``video_url``; JPEG frame
-    sampling drops the audio track. When ``enable_audio`` is True, always use ``video_url``.
+    Audio-capable VLMs (e.g. Nemotron Omni) need the full MP4 via ``video_url``; JPEG frame
+    sampling drops the audio track. When ``enable_audio`` is True and the model supports
+    embedded audio, use ``video_url`` (or the data-URI path for remote Omni — see
+    ``_should_use_video_file_base64``).
+
+    Edge case: ``enable_audio=True`` with a non-Omni remote VLM. The model can't process
+    the audio track anyway, and the internal VST URL is unreachable from a remote NIM, so
+    sending ``video_url`` would produce no analysis at all. Fall back to JPEG frame
+    sampling (the normal remote-VLM path) and warn loudly so the misconfiguration is
+    visible in logs.
     """
     if enable_audio:
+        if _is_remote_vlm(vlm_mode) and not _is_omni_audio_model(model_name):
+            logger.warning(
+                "enable_audio=True with non-Omni remote VLM (model=%r) cannot honor audio "
+                "(remote NIM cannot reach internal VST URL, and the model has no audio "
+                "head). Falling back to JPEG frame sampling; audio is dropped. Set "
+                "enable_audio=false or use an Omni-capable model to silence this warning.",
+                model_name,
+            )
+            return True
         if use_base64:
             logger.warning("use_base64=True is ignored because enable_audio=True requires the full MP4 via video_url.")
         return False
@@ -424,6 +442,7 @@ async def video_understanding(config: VideoUnderstandingConfig, builder: Builder
         use_base64=config.use_base64,
         vlm_mode=config.vlm_mode,
         enable_audio=config.enable_audio,
+        model_name=model_name,
     )
     use_video_file_base64 = _should_use_video_file_base64(
         enable_audio=config.enable_audio,
