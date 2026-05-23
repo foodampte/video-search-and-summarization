@@ -62,9 +62,10 @@ def create_app() -> FastAPI:
     # Configure CORS
     # Note: Defaulting to localhost:3000 instead of wildcard "*" for safer local dev
     # Personal note: also allowing 5173 since I use Vite for local frontend dev
+    # Also added 8080 for when I run the frontend via docker-compose locally
     allowed_origins = os.getenv(
         "ALLOWED_ORIGINS",
-        "http://localhost:3000,http://localhost:5173"
+        "http://localhost:3000,http://localhost:5173,http://localhost:8080"
     ).split(",")
     app.add_middleware(
         CORSMiddleware,
@@ -95,13 +96,4 @@ if __name__ == "__main__":
     host = os.getenv("APP_HOST", "0.0.0.0")
     port = int(os.getenv("APP_PORT", "8000"))
     reload = os.getenv("APP_RELOAD", "false").lower() == "true"
-    workers = int(os.getenv("APP_WORKERS", "1"))
-
-    logger.info("Starting server on %s:%d", host, port)
-    uvicorn.run(
-        "src.main:app",
-        host=host,
-        port=port,
-        reload=reload,
-        workers=workers,
-    )
+    workers = int(os.getenv("
