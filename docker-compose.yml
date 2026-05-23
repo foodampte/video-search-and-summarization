@@ -1,0 +1,124 @@
+# Video Search and Summarization - Docker Compose Configuration
+# This file defines the services required to run the application stack.
+
+version: '3.8'
+
+services:
+  # Backend API service
+  api:
+    build:
+      context: ./src/api
+      dockerfile: Dockerfile
+    container_name: vss-api
+    ports:
+      - "8000:8000"
+    environment:
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+      - MILVUS_HOST=milvus
+      - MILVUS_PORT=19530
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data/videos:/app/videos
+      - ./data/thumbnails:/app/thumbnails
+    depends_on:
+      - milvus
+      - redis
+    networks:
+      - vss-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # Frontend UI service
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: vss-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - api
+    networks:
+      - vss-network
+    restart: unless-stopped
+
+  # Milvus vector database for storing video embeddings
+  milvus:
+    image: milvusdb/milvus:v2.3.4
+    container_name: vss-milvus
+    command: ["milvus", "run", "standalone"]
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    environment:
+      - ETCD_ENDPOINTS=etcd:2379
+      - MINIO_ADDRESS=minio:9000
+    volumes:
+      - milvus_data:/var/lib/milvus
+    depends_on:
+      - etcd
+      - minio
+    networks:
+      - vss-network
+    restart: unless-stopped
+
+  # etcd for Milvus metadata storage
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    container_name: vss-etcd
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+    volumes:
+      - etcd_data:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    networks:
+      - vss-network
+    restart: unless-stopped
+
+  # MinIO for Milvus object storage
+  minio:
+    image: minio/minio:RELEASE.2023-03-13T19-46-17Z
+    container_name: vss-minio
+    environment:
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+    volumes:
+      - minio_data:/data
+    command: minio server /data
+    networks:
+      - vss-network
+    restart: unless-stopped
+
+  # Redis for task queue and caching
+  redis:
+    image: redis:7.2-alpine
+    container_name: vss-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - vss-network
+    restart: unless-stopped
+
+volumes:
+  milvus_data:
+  etcd_data:
+  minio_data:
+  redis_data:
+
+networks:
+  vss-network:
+    driver: bridge
