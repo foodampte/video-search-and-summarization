@@ -18,7 +18,7 @@ services:
       - MILVUS_PORT=19530
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
     volumes:
       - ./data/videos:/app/videos
       - ./data/thumbnails:/app/thumbnails
@@ -109,6 +109,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    # persist redis data to disk so cache survives restarts during local dev
+    command: redis-server --appendonly yes
     networks:
       - vss-network
     restart: unless-stopped
