@@ -98,9 +98,10 @@ pip install -r requirements.txt
 pytest tests/ -v
 ```
 
+## Troubleshooting
+
+- **Milvus connection refused**: Make sure the Milvus container has fully started before the backend tries to connect. Running `docker compose up` a second time after the first run usually resolves this.
+- **CUDA out of memory during ingestion**: Try processing shorter video clips or reducing batch size via the `INGESTION_BATCH_SIZE` env variable.
+
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) and follow the [pull request template](.github/PULL_REQUEST_TEMPLATE.md).
-
-For bugs, use the [bug report form](.github/ISSUE_TEMPLATE/bug_report_form.yml).  
-For features, use the
