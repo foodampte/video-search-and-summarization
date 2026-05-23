@@ -18,7 +18,7 @@ services:
       - MILVUS_PORT=19530
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - ./data/videos:/app/videos
       - ./data/thumbnails:/app/thumbnails
@@ -110,7 +110,8 @@ services:
     volumes:
       - redis_data:/data
     # persist redis data to disk so cache survives restarts during local dev
-    command: redis-server --appendonly yes
+    # maxmemory set to 256mb to avoid runaway memory usage on my dev machine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     networks:
       - vss-network
     restart: unless-stopped
