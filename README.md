@@ -77,8 +77,10 @@ Key environment variables:
 | `MILVUS_HOST` | Milvus vector DB host | `localhost` |
 | `MILVUS_PORT` | Milvus vector DB port | `19530` |
 | `VIDEO_STORAGE_PATH` | Path to store uploaded videos | `./data/videos` |
-| `LLM_MODEL` | LLM model for summarization | `meta/llama-3.1-70b-instruct` |
+| `LLM_MODEL` | LLM model for summarization | `meta/llama-3.1-8b-instruct` |
 | `EMBEDDING_MODEL` | Embedding model for search | `nvidia/nv-embedqa-e5-v5` |
+
+> **Personal note:** I changed the default `LLM_MODEL` from `llama-3.1-70b-instruct` to `llama-3.1-8b-instruct` to reduce API costs while experimenting locally. Switch back to the 70b variant for better summarization quality.
 
 ## Development
 
@@ -101,8 +103,4 @@ pytest tests/ -v
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) and follow the [pull request template](.github/PULL_REQUEST_TEMPLATE.md).
 
 For bugs, use the [bug report form](.github/ISSUE_TEMPLATE/bug_report_form.yml).  
-For features, use the [feature request form](.github/ISSUE_TEMPLATE/feature_request_form.yml).
-
-## License
-
-See [LICENSE](LICENSE) for details.
+For features, use the
