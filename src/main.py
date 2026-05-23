@@ -61,7 +61,11 @@ def create_app() -> FastAPI:
 
     # Configure CORS
     # Note: Defaulting to localhost:3000 instead of wildcard "*" for safer local dev
-    allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    # Personal note: also allowing 5173 since I use Vite for local frontend dev
+    allowed_origins = os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost:3000,http://localhost:5173"
+    ).split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
@@ -99,5 +103,5 @@ if __name__ == "__main__":
         host=host,
         port=port,
         reload=reload,
-        workers=workers if not reload else 1,
+        workers=workers,
     )
