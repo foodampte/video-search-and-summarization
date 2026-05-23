@@ -60,7 +60,8 @@ def create_app() -> FastAPI:
     )
 
     # Configure CORS
-    allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+    # Note: Defaulting to localhost:3000 instead of wildcard "*" for safer local dev
+    allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
@@ -99,5 +100,4 @@ if __name__ == "__main__":
         port=port,
         reload=reload,
         workers=workers if not reload else 1,
-        log_level="info",
     )
