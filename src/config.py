@@ -65,8 +65,10 @@ class VectorStoreConfig:
 class VideoProcessingConfig:
     """Configuration for video ingestion and frame extraction."""
 
+    # Increased from 2.0 to 5.0 seconds — I mostly work with longer videos
+    # where dense frame sampling isn't necessary and just slows things down.
     frame_interval_seconds: float = field(
-        default_factory=lambda: float(os.getenv("FRAME_INTERVAL_SECONDS", "2.0"))
+        default_factory=lambda: float(os.getenv("FRAME_INTERVAL_SECONDS", "5.0"))
     )
     max_frames_per_video: int = field(
         default_factory=lambda: int(os.getenv("MAX_FRAMES_PER_VIDEO", "500"))
@@ -98,23 +100,3 @@ class AppConfig:
     debug: bool = field(
         default_factory=lambda: os.getenv("APP_DEBUG", "false").lower() == "true"
     )
-    log_level: str = field(
-        default_factory=lambda: os.getenv("LOG_LEVEL", "INFO").upper()
-    )
-    nim: NIMConfig = field(default_factory=NIMConfig)
-    vector_store: VectorStoreConfig = field(default_factory=VectorStoreConfig)
-    video_processing: VideoProcessingConfig = field(default_factory=VideoProcessingConfig)
-
-    def validate(self) -> None:
-        """Validate critical configuration values and raise if misconfigured."""
-        if not self.nim.api_key:
-            raise EnvironmentError(
-                "NVIDIA_API_KEY environment variable is not set. "
-                "Obtain an API key from https://build.nvidia.com."
-            )
-        os.makedirs(self.video_processing.upload_dir, exist_ok=True)
-        os.makedirs(self.video_processing.frames_dir, exist_ok=True)
-
-
-# Module-level singleton — import this throughout the application.
-config = AppConfig()
