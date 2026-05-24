@@ -94,6 +94,6 @@ app = create_app()
 
 if __name__ == "__main__":
     host = os.getenv("APP_HOST", "0.0.0.0")
-    port = int(os.getenv("APP_PORT", "8000"))  # changed default from 80 to 8000; avoids needing sudo locally
+    port = int(os.getenv("APP_PORT", "8000"))  # changed default from 80 to 8000 to avoid needing sudo locally
     log_level = os.getenv("LOG_LEVEL", "info").lower()
     uvicorn.run(app, host=host, port=port, log_level=log_level)
