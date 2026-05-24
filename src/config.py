@@ -70,8 +70,10 @@ class VideoProcessingConfig:
     frame_interval_seconds: float = field(
         default_factory=lambda: float(os.getenv("FRAME_INTERVAL_SECONDS", "5.0"))
     )
+    # Bumped up from 500 to 1000 to handle feature-length films without hitting
+    # the cap mid-video.
     max_frames_per_video: int = field(
-        default_factory=lambda: int(os.getenv("MAX_FRAMES_PER_VIDEO", "500"))
+        default_factory=lambda: int(os.getenv("MAX_FRAMES_PER_VIDEO", "1000"))
     )
     thumbnail_width: int = field(
         default_factory=lambda: int(os.getenv("THUMBNAIL_WIDTH", "320"))
@@ -95,8 +97,3 @@ class AppConfig:
         default_factory=lambda: os.getenv("APP_HOST", "0.0.0.0")
     )
     port: int = field(
-        default_factory=lambda: int(os.getenv("APP_PORT", "8000"))
-    )
-    debug: bool = field(
-        default_factory=lambda: os.getenv("APP_DEBUG", "false").lower() == "true"
-    )
