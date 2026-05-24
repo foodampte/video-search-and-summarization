@@ -18,7 +18,7 @@ services:
       - MILVUS_PORT=19530
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
     volumes:
       - ./data/videos:/app/videos
       - ./data/thumbnails:/app/thumbnails
