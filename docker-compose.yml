@@ -116,12 +116,12 @@ services:
       - vss-network
     restart: unless-stopped
 
+networks:
+  vss-network:
+    driver: bridge
+
 volumes:
   milvus_data:
   etcd_data:
   minio_data:
   redis_data:
-
-networks:
-  vss-network:
-    driver: bridge
