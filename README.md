@@ -100,8 +100,6 @@ pytest tests/ -v
 
 ## Troubleshooting
 
-### Common issues
-
-- **GPU not detected**: Make sure the NVIDIA Container Toolkit is installed and `docker info | grep -i runtime` shows `nvidia` as an available runtime.
-- **Milvus connection refused**: The vector DB can take 20–30 seconds to become ready on first launch. Wait for the health check to pass before ingesting videos.
-- **API key errors**: Ensure `NVIDIA_API_KEY` is set in your `.env` file and has access to the required NIM endpoints.
+- **GPU not detected:** Make sure the NVIDIA Container Toolkit is installed and `nvidia-smi` works on the host.
+- **Milvus connection refused:** The vector DB can take 20–30 seconds to become ready on first launch; retry after a moment.
+- **API key errors:** Confirm `NVIDIA_API_KEY` is set in your `.env` file and that the key has access to NIM endpoints.
