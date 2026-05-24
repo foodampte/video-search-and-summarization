@@ -100,8 +100,8 @@ pytest tests/ -v
 
 ## Troubleshooting
 
-- **Milvus connection refused**: Make sure the Milvus container has fully started before the backend tries to connect. Running `docker compose up` a second time after the first run usually resolves this.
-- **CUDA out of memory during ingestion**: Try processing shorter video clips or reducing batch size via the `INGESTION_BATCH_SIZE` env variable.
+### Common issues
 
-## Contributing
-
+- **GPU not detected**: Make sure the NVIDIA Container Toolkit is installed and `docker info | grep -i runtime` shows `nvidia` as an available runtime.
+- **Milvus connection refused**: The vector DB can take 20–30 seconds to become ready on first launch. Wait for the health check to pass before ingesting videos.
+- **API key errors**: Ensure `NVIDIA_API_KEY` is set in your `.env` file and has access to the required NIM endpoints.
