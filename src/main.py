@@ -94,6 +94,11 @@ app = create_app()
 
 if __name__ == "__main__":
     host = os.getenv("APP_HOST", "0.0.0.0")
-    port = int(os.getenv("APP_PORT", "8000"))
-    reload = os.getenv("APP_RELOAD", "false").lower() == "true"
-    workers = int(os.getenv("
+    port = int(os.getenv("APP_PORT", "8000"))  # changed from 80; easier to run without sudo locally
+    uvicorn.run(
+        "main:app",
+        host=host,
+        port=port,
+        reload=os.getenv("APP_RELOAD", "false").lower() == "true",
+        log_level="info",
+    )
