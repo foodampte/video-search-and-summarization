@@ -63,9 +63,10 @@ def create_app() -> FastAPI:
     # Note: Defaulting to localhost:3000 instead of wildcard "*" for safer local dev
     # Personal note: also allowing 5173 since I use Vite for local frontend dev
     # Also added 8080 for when I run the frontend via docker-compose locally
+    # Added 4173 for Vite preview mode (vite preview)
     allowed_origins = os.getenv(
         "ALLOWED_ORIGINS",
-        "http://localhost:3000,http://localhost:5173,http://localhost:8080"
+        "http://localhost:3000,http://localhost:5173,http://localhost:4173,http://localhost:8080"
     ).split(",")
     app.add_middleware(
         CORSMiddleware,
@@ -94,6 +95,6 @@ app = create_app()
 
 if __name__ == "__main__":
     host = os.getenv("APP_HOST", "0.0.0.0")
-    port = int(os.getenv("APP_PORT", "8000"))  # changed default from 80 to 8000 to avoid needing sudo locally
-    log_level = os.getenv("LOG_LEVEL", "info").lower()
-    uvicorn.run(app, host=host, port=port, log_level=log_level)
+    port = int(os.getenv("APP_PORT", "8000"))
+    # Using port 8000 as default instead of 80 to avoid needing root privileges locally
+    uvicorn.run(app, host=host, port=port)
