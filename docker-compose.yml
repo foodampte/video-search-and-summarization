@@ -110,8 +110,8 @@ services:
     volumes:
       - redis_data:/data
     # persist redis data to disk so cache survives restarts during local dev
-    # maxmemory set to 256mb to avoid runaway memory usage on my dev machine
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    # bumped maxmemory from 256mb to 512mb - was hitting the limit during longer video processing sessions
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
     networks:
       - vss-network
     restart: unless-stopped
